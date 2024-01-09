@@ -50,6 +50,7 @@
 #define RB_TEX_COLOR_MSAA SNAME("color_msaa")
 #define RB_TEX_COLOR_UPSCALED SNAME("color_upscaled")
 #define RB_TEX_DEPTH SNAME("depth")
+#define RB_TEX_CUSTOM0 SNAME("custom_0")
 #define RB_TEX_DEPTH_MSAA SNAME("depth_msaa")
 #define RB_TEX_VELOCITY SNAME("velocity")
 #define RB_TEX_VELOCITY_MSAA SNAME("velocity_msaa")

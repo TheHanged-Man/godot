@@ -334,9 +334,10 @@ void SceneShaderForwardClustered::ShaderData::set_code(const String &p_code) {
 							if (depth_draw == DEPTH_DRAW_OPAQUE) {
 								depth_stencil.enable_depth_write = false; //alpha does not draw depth
 							}
-						} else {
+						}
+						else {
 							blend_state = blend_state_color_opaque;
-
+		
 							if (depth_pre_pass_enabled) {
 								// We already have a depth from the depth pre-pass, there is no need to write it again.
 								// In addition we can use COMPARE_OP_EQUAL instead of COMPARE_OP_LESS_OR_EQUAL.
@@ -361,6 +362,11 @@ void SceneShaderForwardClustered::ShaderData::set_code(const String &p_code) {
 						if (l & PIPELINE_COLOR_PASS_FLAG_MULTIVIEW) {
 							shader_flags |= SHADER_COLOR_PASS_FLAG_MULTIVIEW;
 						}
+
+						if (l == 0) {
+							blend_state.attachments.push_back(RD::PipelineColorBlendState::Attachment());
+						}
+							
 
 						int variant = shader_version + shader_flags;
 

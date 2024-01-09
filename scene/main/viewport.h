@@ -33,6 +33,7 @@
 
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
+#include "servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.h"
 
 #ifndef _3D_DISABLED
 class Camera3D;
@@ -496,6 +497,7 @@ protected:
 	static void _bind_methods();
 
 public:
+	Ref<RenderSceneBuffers> Viewport::get_render_buffer();
 	void canvas_parent_mark_dirty(Node *p_node);
 	void canvas_item_top_level_changed();
 

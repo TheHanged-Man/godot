@@ -87,6 +87,7 @@ void ViewportTexture::setup_local_to_scene() {
 	}
 }
 
+
 void ViewportTexture::reset_local_to_scene() {
 	vp_changed = true;
 
@@ -951,6 +952,11 @@ void Viewport::update_canvas_items() {
 	}
 
 	_update_canvas_items(this);
+}
+
+Ref<RenderSceneBuffers> Viewport::get_render_buffer() {
+	RendererViewport::Viewport *vp = RSG::viewport->viewport_owner.get_or_null(viewport);
+	return vp->render_buffers;
 }
 
 void Viewport::_set_size(const Size2i &p_size, const Size2i &p_size_2d_override, bool p_allocated) {
@@ -4552,6 +4558,8 @@ void Viewport::_propagate_world_2d_changed(Node *p_node) {
 }
 
 void Viewport::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_render_buffer"), &Viewport::get_render_buffer);
+
 	ClassDB::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
 	ClassDB::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
 	ClassDB::bind_method(D_METHOD("find_world_2d"), &Viewport::find_world_2d);

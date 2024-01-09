@@ -118,7 +118,9 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 		enum DepthFrameBufferType {
 			DEPTH_FB,
 			DEPTH_FB_ROUGHNESS,
-			DEPTH_FB_ROUGHNESS_VOXELGI
+			DEPTH_FB_ROUGHNESS_VOXELGI,
+			DEPTH_CUSTOM_FB,
+
 		};
 
 		RID render_sdfgi_uniform_set;
