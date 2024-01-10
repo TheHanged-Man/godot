@@ -2800,6 +2800,7 @@ void RenderForwardClustered::_render_sdfgi(Ref<RenderSceneBuffersRD> p_render_bu
 	Vector3 half_size = p_bounds.size * 0.5;
 	Vector3 center = p_bounds.position + half_size;
 
+	//print_line("re-render " + p_from + " - " + p_size + " bounds " + p_bounds);
 	for (int i = 0; i < 3; i++) {
 		scene_state.ubo.sdf_offset[i] = p_from[i];
 		scene_state.ubo.sdf_size[i] = p_size[i];
