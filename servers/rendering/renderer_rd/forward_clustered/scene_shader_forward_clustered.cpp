@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  scene_shader_forward_clustered.cpp                                    */
+/*  sc ene_shader_forward_clustered.cpp                                    */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -138,12 +138,13 @@ void SceneShaderForwardClustered::ShaderData::set_code(const String &p_code) {
 	actions.write_flag_pointers["VERTEX"] = &uses_vertex;
 	actions.write_flag_pointers["POSITION"] = &uses_position;
 
+
 	actions.uniforms = &uniforms;
 
 	SceneShaderForwardClustered *shader_singleton = (SceneShaderForwardClustered *)SceneShaderForwardClustered::singleton;
 	Error err = shader_singleton->compiler.compile(RS::SHADER_SPATIAL, code, &actions, path, gen_code);
 	ERR_FAIL_COND_MSG(err != OK, "Shader compilation failed.");
-
+		
 	if (version.is_null()) {
 		version = shader_singleton->shader.version_create();
 	}
@@ -725,6 +726,10 @@ void SceneShaderForwardClustered::init(const String p_defines) {
 		actions.render_mode_defines["debug_shadow_splits"] = "#define DEBUG_DRAW_PSSM_SPLITS\n";
 		actions.render_mode_defines["fog_disabled"] = "#define FOG_DISABLED\n";
 
+		//自定义动作
+		actions.usage_defines["ALPHA"] = "#define CUSTOM_USE_ALPHA\n";
+
+		//
 		actions.base_texture_binding_index = 1;
 		actions.texture_layout_set = RenderForwardClustered::MATERIAL_UNIFORM_SET;
 		actions.base_uniform_string = "material.";

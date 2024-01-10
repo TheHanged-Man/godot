@@ -769,7 +769,13 @@ layout(location = 1) out vec4 specular_buffer; //specular and SSS (subsurface sc
 #else
 
 layout(location = 0) out vec4 frag_color;
-layout(location = 3) out vec4 custom_0_color;
+
+#ifndef CUSTOM_USE_ALPHA
+
+layout(location = 1) out vec4 custom_0_color;
+
+#endif // MODE_CUSTOM
+
 #endif // MODE_SEPARATE_SPECULAR
 
 #endif // RENDER DEPTH
@@ -2408,7 +2414,10 @@ void fragment_shader(in SceneData scene_data) {
 
 	alpha *= scene_data.pass_alpha_multiplier;
 
+#ifndef CUSTOM_USE_ALPHA
 	custom_0_color=vec4(normal_interp,1.0);
+#endif
+
 #ifdef MODE_UNSHADED
 	frag_color = vec4(albedo, alpha);
 #else
