@@ -121,7 +121,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 			DEPTH_FB_ROUGHNESS,
 			DEPTH_FB_ROUGHNESS_VOXELGI,
 			DEPTH_CUSTOM_FB,
-
 		};
 
 		RID render_sdfgi_uniform_set;

@@ -87,7 +87,6 @@ void ViewportTexture::setup_local_to_scene() {
 	}
 }
 
-
 void ViewportTexture::reset_local_to_scene() {
 	vp_changed = true;
 
@@ -4558,7 +4557,6 @@ void Viewport::_propagate_world_2d_changed(Node *p_node) {
 }
 
 void Viewport::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_render_buffer"), &Viewport::get_render_buffer);
 
 	ClassDB::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
 	ClassDB::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
@@ -4600,6 +4598,7 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_debug_draw"), &Viewport::get_debug_draw);
 
 	ClassDB::bind_method(D_METHOD("get_render_info", "type", "info"), &Viewport::get_render_info);
+	ClassDB::bind_method(D_METHOD("get_render_buffer"), &Viewport::get_render_buffer);
 
 	ClassDB::bind_method(D_METHOD("get_texture"), &Viewport::get_texture);
 

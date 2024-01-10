@@ -497,7 +497,6 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<RenderSceneBuffers> Viewport::get_render_buffer();
 	void canvas_parent_mark_dirty(Node *p_node);
 	void canvas_item_top_level_changed();
 
@@ -620,6 +619,7 @@ public:
 	DebugDraw get_debug_draw() const;
 
 	int get_render_info(RenderInfoType p_type, RenderInfo p_info);
+	Ref<RenderSceneBuffers> Viewport::get_render_buffer();
 
 	void set_snap_controls_to_pixels(bool p_enable);
 	bool is_snap_controls_to_pixels_enabled() const;

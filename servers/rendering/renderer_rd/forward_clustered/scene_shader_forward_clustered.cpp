@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  sc ene_shader_forward_clustered.cpp                                    */
+/*  scene_shader_forward_clustered.cpp                                    */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -138,13 +138,12 @@ void SceneShaderForwardClustered::ShaderData::set_code(const String &p_code) {
 	actions.write_flag_pointers["VERTEX"] = &uses_vertex;
 	actions.write_flag_pointers["POSITION"] = &uses_position;
 
-
 	actions.uniforms = &uniforms;
 
 	SceneShaderForwardClustered *shader_singleton = (SceneShaderForwardClustered *)SceneShaderForwardClustered::singleton;
 	Error err = shader_singleton->compiler.compile(RS::SHADER_SPATIAL, code, &actions, path, gen_code);
 	ERR_FAIL_COND_MSG(err != OK, "Shader compilation failed.");
-		
+
 	if (version.is_null()) {
 		version = shader_singleton->shader.version_create();
 	}
@@ -335,10 +334,9 @@ void SceneShaderForwardClustered::ShaderData::set_code(const String &p_code) {
 							if (depth_draw == DEPTH_DRAW_OPAQUE) {
 								depth_stencil.enable_depth_write = false; //alpha does not draw depth
 							}
-						}
-						else {
+						} else {
 							blend_state = blend_state_color_opaque;
-		
+
 							if (depth_pre_pass_enabled) {
 								// We already have a depth from the depth pre-pass, there is no need to write it again.
 								// In addition we can use COMPARE_OP_EQUAL instead of COMPARE_OP_LESS_OR_EQUAL.
@@ -729,7 +727,6 @@ void SceneShaderForwardClustered::init(const String p_defines) {
 		//自定义动作
 		actions.usage_defines["ALPHA"] = "#define CUSTOM_USE_ALPHA\n";
 
-		//
 		actions.base_texture_binding_index = 1;
 		actions.texture_layout_set = RenderForwardClustered::MATERIAL_UNIFORM_SET;
 		actions.base_uniform_string = "material.";

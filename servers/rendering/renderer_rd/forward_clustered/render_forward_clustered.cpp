@@ -195,17 +195,20 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_pass_fb(
 
 	if (render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE)) {
 		RID vrs_texture = render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
-	
+
 		return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, specular, velocity_buffer, depth, vrs_texture);
 	} else {
 		//默认会进入此选项
 
 
 		return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, specular, velocity_buffer, depth);
-
 	}
 }
 
+/**
+ * 自定义 framebuffer
+ * 插入在透明队列之前、替换掉不透明队列，在渲染完成后输出回 color_pass_buffer
+*/
 RID RendererSceneRenderImplementation::RenderForwardClustered::RenderBufferDataForwardClustered::get_custom_fb(uint32_t p_color_pass_flags) {
 	int v_count = (p_color_pass_flags & COLOR_PASS_FLAG_MULTIVIEW) ? render_buffers->get_view_count() : 1;
 	RID color = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM_COLOR);
@@ -221,7 +224,6 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_depth_fb(Depth
 	bool use_msaa = render_buffers->get_msaa_3d() != RS::VIEWPORT_MSAA_DISABLED;
 
 	RID depth = use_msaa ? render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH_MSAA) : render_buffers->get_depth_texture();
-
 
 	switch (p_type) {
 		case DEPTH_FB: {
@@ -468,12 +470,8 @@ void RenderForwardClustered::_render_list_template(RenderingDevice::DrawListID p
 		if constexpr (p_pass_mode == PASS_MODE_COLOR) {
 
 			// 0   3   0
-
-
 			pipeline = &shader->color_pipelines[cull_variant][primitive][pipeline_color_pass_flags];
-
 		} else {
-
 			pipeline = &shader->pipelines[cull_variant][primitive][pipeline_version];
 		}
 
@@ -557,16 +555,13 @@ void RenderForwardClustered::_render_list(RenderingDevice::DrawListID p_draw_lis
 
 	switch (p_params->pass_mode) {
 #define VALID_FLAG_COMBINATION(f)                                                                                             \
-		case f: {                                                                                                                 \
-			_render_list_template<PASS_MODE_COLOR, f>(p_draw_list, p_framebuffer_Format, p_params, p_from_element, p_to_element); \
-		} break;
+	case f: {                                                                                                                 \
+		_render_list_template<PASS_MODE_COLOR, f>(p_draw_list, p_framebuffer_Format, p_params, p_from_element, p_to_element); \
+	} break;
 
 		case PASS_MODE_COLOR: {
 			switch (p_params->color_pass_flags) {
-				case 0: {
-					_render_list_template<PASS_MODE_COLOR, 0>(p_draw_list, p_framebuffer_Format, p_params, p_from_element, p_to_element);
-				} break;
-					;
+				VALID_FLAG_COMBINATION(0);
 				VALID_FLAG_COMBINATION(COLOR_PASS_FLAG_TRANSPARENT);
 				VALID_FLAG_COMBINATION(COLOR_PASS_FLAG_TRANSPARENT | COLOR_PASS_FLAG_MULTIVIEW);
 				VALID_FLAG_COMBINATION(COLOR_PASS_FLAG_TRANSPARENT | COLOR_PASS_FLAG_MOTION_VECTORS);
@@ -1691,14 +1686,14 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	bool reverse_cull = p_render_data->scene_data->cam_transform.basis.determinant() < 0;
 	bool using_ssil = !is_reflection_probe && p_render_data->environment.is_valid() && environment_get_ssil_enabled(p_render_data->environment);
 	bool using_motion_pass = rb_data.is_valid() && using_fsr2;
+
 	//暂时关闭此分支，以便于后续修改代码与功能测试
-	if (is_reflection_probe&&false) {
+	if (is_reflection_probe && false) {
 		uint32_t resolution = light_storage->reflection_probe_instance_get_resolution(p_render_data->reflection_probe);
 		screen_size.x = resolution;
 		screen_size.y = resolution;
 
 		color_framebuffer = light_storage->reflection_probe_instance_get_framebuffer(p_render_data->reflection_probe, p_render_data->reflection_probe_pass);
-
 		color_only_framebuffer = color_framebuffer;
 		depth_framebuffer = light_storage->reflection_probe_instance_get_depth_framebuffer(p_render_data->reflection_probe, p_render_data->reflection_probe_pass);
 
@@ -1708,8 +1703,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 
 		reverse_cull = true; // for some reason our views are inverted
 		samplers = RendererRD::MaterialStorage::get_singleton()->samplers_rd_get_default();
-	}
-	else {
+	} else {
 		screen_size = rb->get_internal_size();
 
 		if (p_render_data->scene_data->calculate_motion_vectors) {
@@ -1739,7 +1733,6 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		}
 
 		color_framebuffer = rb_data->get_color_pass_fb(color_pass_flags);
-		//print_line("color_framebuffer samplers ", color_framebuffer);
 		color_only_framebuffer = rb_data->get_color_only_fb();
 		samplers = rb->get_samplers();
 	}
@@ -1770,8 +1763,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	if (!is_reflection_probe) {
 		if (using_voxelgi) {
 			depth_pass_mode = PASS_MODE_DEPTH_NORMAL_ROUGHNESS_VOXEL_GI;
-		}
-		else if (p_render_data->environment.is_valid()) {
+		} else if (p_render_data->environment.is_valid()) {
 			if (environment_get_ssr_enabled(p_render_data->environment) ||
 					environment_get_sdfgi_enabled(p_render_data->environment) ||
 					environment_get_ssao_enabled(p_render_data->environment) ||
@@ -1780,15 +1772,13 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 					scene_state.used_normal_texture) {
 				depth_pass_mode = PASS_MODE_DEPTH_NORMAL_ROUGHNESS;
 			}
-		}
-		else if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_NORMAL_BUFFER || scene_state.used_normal_texture) {
+		} else if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_NORMAL_BUFFER || scene_state.used_normal_texture) {
 			depth_pass_mode = PASS_MODE_DEPTH_NORMAL_ROUGHNESS;
 		}
 
 		switch (depth_pass_mode) {
 			case PASS_MODE_DEPTH: {
 				depth_framebuffer = rb_data->get_depth_fb();
-
 			} break;
 			case PASS_MODE_DEPTH_NORMAL_ROUGHNESS: {
 				depth_framebuffer = rb_data->get_depth_fb(RenderBufferDataForwardClustered::DEPTH_FB_ROUGHNESS);
@@ -1810,7 +1800,6 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		using_separate_specular = true;
 		color_pass_flags |= COLOR_PASS_FLAG_SEPARATE_SPECULAR;
 		color_framebuffer = rb_data->get_color_pass_fb(color_pass_flags);
-		//print_line("color_framebuffer using_sss ", color_framebuffer);
 	}
 
 	if (using_sss || using_separate_specular || scene_state.used_lightmap || using_voxelgi) {
@@ -1932,8 +1921,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		}
 		if (needs_pre_resolve) {
 			//pre clear the depth framebuffer, as AMD (and maybe others?) use compute for it, and barrier other compute shaders.
-			//RD::get_singleton()->draw_list_begin(depth_framebuffer, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, depth_pass_clear);
-			//RD::get_singleton()->draw_list_end();
+			RD::get_singleton()->draw_list_begin(depth_framebuffer, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, depth_pass_clear);
+			RD::get_singleton()->draw_list_end();
 			//start compute processes here, so they run at the same time as depth pre-pass
 			_post_prepass_render(p_render_data, using_sdfgi || using_voxelgi);
 		}
@@ -1943,15 +1932,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		RID rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_OPAQUE, nullptr, RID(), samplers);
 
 		bool finish_depth = using_ssao || using_ssil || using_sdfgi || using_voxelgi;
-		RenderListParameters render_list_params(
-			render_list[RENDER_LIST_OPAQUE].elements.ptr(),
-			render_list[RENDER_LIST_OPAQUE].element_info.ptr(),
-			render_list[RENDER_LIST_OPAQUE].elements.size(),
-			reverse_cull,
-			depth_pass_mode,
-			0, rb_data.is_null(),
-			p_render_data->directional_light_soft_shadows,
-			rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+		RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, depth_pass_mode, 0, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
 		_render_list_with_draw_list(&render_list_params, depth_framebuffer, needs_pre_resolve ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, needs_pre_resolve ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, needs_pre_resolve ? Vector<Color>() : depth_pass_clear);
 
 		RD::get_singleton()->draw_command_end_label();
@@ -2013,14 +1994,12 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 					//替换原有的framebuffer内容，因此此处需要根据自定义内容考虑补充的clear color数目
 					//c.push_back(Color(0, 0, 0, 0)); // Separate specular.
 					//c.push_back(Color(0, 0, 0, 0)); // Motion vector. Pushed to the clear color vector even if the framebuffer isn't bound.
-					c.push_back(Color(0, 0.0, 0, 1.0)); //Custom 
+					c.push_back(Color(0, 0, 0, 1.0)); //Custom 
 				}
 			}
 
 			uint32_t opaque_color_pass_flags = using_motion_pass ? (color_pass_flags & ~COLOR_PASS_FLAG_MOTION_VECTORS) : color_pass_flags;
-			//print_line("color_framebuffer ", color_framebuffer);
 			//RID opaque_framebuffer = using_motion_pass ? rb_data->get_color_pass_fb(opaque_color_pass_flags) : color_framebuffer;
-			//print_line("opaque_framebuffer ", opaque_framebuffer);
 			RID opaque_framebuffer = rb_data->get_custom_fb(opaque_color_pass_flags);
 			RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, PASS_MODE_COLOR, opaque_color_pass_flags, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
 			_render_list_with_draw_list(&render_list_params, opaque_framebuffer, load_color ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, depth_pre_pass ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, c, 1.0, 0);
@@ -2193,8 +2172,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_ALPHA, p_render_data, radiance_texture, samplers, true);
 
 	_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
-	//关闭透明阶段渲染
-	if(true){
+
+	{
 		uint32_t transparent_color_pass_flags = (color_pass_flags | COLOR_PASS_FLAG_TRANSPARENT) & ~(COLOR_PASS_FLAG_SEPARATE_SPECULAR);
 		if (using_motion_pass) {
 			// Motion vectors on transparent draw calls are not required when using the reactive mask.
@@ -2821,7 +2800,6 @@ void RenderForwardClustered::_render_sdfgi(Ref<RenderSceneBuffersRD> p_render_bu
 	Vector3 half_size = p_bounds.size * 0.5;
 	Vector3 center = p_bounds.position + half_size;
 
-	//print_line("re-render " + p_from + " - " + p_size + " bounds " + p_bounds);
 	for (int i = 0; i < 3; i++) {
 		scene_state.ubo.sdf_offset[i] = p_from[i];
 		scene_state.ubo.sdf_size[i] = p_size[i];
