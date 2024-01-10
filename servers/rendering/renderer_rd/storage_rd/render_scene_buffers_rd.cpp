@@ -184,6 +184,16 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 	}
 
 
+	//Create our Custom Color buffer
+	{
+		// Create our color buffer(s)
+		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0) | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+		usage_bits |= RD::TEXTURE_USAGE_INPUT_ATTACHMENT_BIT; // only needed when using subpasses in the mobile renderer
+		usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT;
+
+
+		create_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM_COLOR, base_data_format, usage_bits);
+	}
 	//Create our Custom buffer
 	{
 		RD::DataFormat format = RD::DATA_FORMAT_R8G8B8A8_UNORM;

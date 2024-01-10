@@ -208,7 +208,8 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_pass_fb(
 
 RID RendererSceneRenderImplementation::RenderForwardClustered::RenderBufferDataForwardClustered::get_custom_fb(uint32_t p_color_pass_flags) {
 	int v_count = (p_color_pass_flags & COLOR_PASS_FLAG_MULTIVIEW) ? render_buffers->get_view_count() : 1;
-	RID color =  render_buffers->get_internal_texture();
+	RID color = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM_COLOR);
+
 	RID depth =  render_buffers->get_depth_texture();
 	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0);
 
@@ -2026,6 +2027,33 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		}
 
 		RD::get_singleton()->draw_command_end_label();
+
+
+		
+		{
+			RENDER_TIMESTAMP("Render Deffer Pass");
+			RD::get_singleton()->draw_command_begin_label("Render Deffer Pass");
+
+			if (render_deffered == nullptr)
+				render_deffered = memnew(RenderDeffered);
+			//
+			Vector<Color> clear_colors;
+			clear_colors.push_back(Color(0.0, 0.0, 0.0, 1.0));
+			//
+			RID color_tex = rb->get_internal_texture();
+			RID color_fb = FramebufferCacheRD::get_singleton()->get_cache_multiview(1, color_tex);
+
+			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(color_fb);
+			
+
+			RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(color_fb, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_LOAD, RD::FINAL_ACTION_STORE, clear_colors);
+
+			render_deffered->render_color_buffer(draw_list, fb_format,rb);
+
+			RD::get_singleton()->draw_list_end();
+
+			RD::get_singleton()->draw_command_end_label();
+		}
 
 		if (using_motion_pass) {
 			Vector<Color> motion_vector_clear_colors;
