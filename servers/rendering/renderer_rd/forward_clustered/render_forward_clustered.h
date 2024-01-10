@@ -31,7 +31,7 @@
 #ifndef RENDER_FORWARD_CLUSTERED_H
 #define RENDER_FORWARD_CLUSTERED_H
 
-#include "./render_deffered.h"
+#include "./render_deferred.h"
 #include "core/templates/paged_allocator.h"
 #include "servers/rendering/renderer_rd/cluster_builder_rd.h"
 #include "servers/rendering/renderer_rd/effects/fsr2.h"
@@ -635,7 +635,7 @@ protected:
 	virtual void _render_particle_collider_heightfield(RID p_fb, const Transform3D &p_cam_transform, const Projection &p_cam_projection, const PagedArray<RenderGeometryInstance *> &p_instances) override;
 
 	//Custom 自定义
-	RenderDeffered *render_deffered=nullptr;
+	RenderDeferred *render_deferred=nullptr;
 
 public:
 	static RenderForwardClustered *get_singleton() { return singleton; }

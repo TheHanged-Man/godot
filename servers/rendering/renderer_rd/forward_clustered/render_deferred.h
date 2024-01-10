@@ -1,5 +1,5 @@
-#ifndef RENDER_DEFFERED_H
-#define RENDER_DEFFERED_H
+#ifndef RENDER_DEFERRED_H
+#define RENDER_DEFERRED_H
 
 #include "core/templates/paged_allocator.h"
 #include "servers/rendering/renderer_rd/cluster_builder_rd.h"
@@ -14,7 +14,7 @@
 #include "servers/rendering/renderer_rd/shaders/forward_clustered/scene_forward_clustered.glsl.gen.h"
 #include "servers/rendering/renderer_rd/storage_rd/utilities.h"
 
-class RenderDeffered {
+class RenderDeferred {
 
 private:
 	RID vertex_array;
@@ -27,7 +27,7 @@ public:
 	void update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers);
 	void render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers);
 
-	RenderDeffered();
+	RenderDeferred();
 };
 
 #endif

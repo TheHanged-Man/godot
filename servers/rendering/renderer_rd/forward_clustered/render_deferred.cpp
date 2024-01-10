@@ -1,6 +1,6 @@
-#include "render_deffered.h"
+#include "render_deferred.h"
 
-RID RenderDeffered::get_pipeline(RD::FramebufferFormatID p_fb_format) {
+RID RenderDeferred::get_pipeline(RD::FramebufferFormatID p_fb_format) {
 	if (pipeline.is_valid())
 		return pipeline;
 
@@ -19,7 +19,7 @@ RID RenderDeffered::get_pipeline(RD::FramebufferFormatID p_fb_format) {
 	return pipeline;
 }
 
-void RenderDeffered::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers) {
+void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers) {
 	Vector<RD::Uniform> uniforms;
 
 	// bind 0
@@ -59,14 +59,14 @@ void RenderDeffered::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buff
 	uniform_set0 = RD::get_singleton()->uniform_set_create(uniforms,shader,0);
 }
 
-void RenderDeffered::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers) {
+void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers) {
 	update_uniform_set0(p_render_buffers);
 	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list,uniform_set0,0);
 	RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, get_pipeline(p_fb_format));
 	RD::get_singleton()->draw_list_draw(p_draw_list, false, 1, 6);
 }
 
-RenderDeffered::RenderDeffered() {
+RenderDeferred::RenderDeferred() {
 	//create our vertex array
 	
 	{
