@@ -1,4 +1,7 @@
 #include "render_deferred.h"
+#include "render_deferred_shader.h"
+#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
+
 
 RID RenderDeferred::get_pipeline(RD::FramebufferFormatID p_fb_format) {
 	if (pipeline.is_valid())
@@ -17,6 +20,10 @@ RID RenderDeferred::get_pipeline(RD::FramebufferFormatID p_fb_format) {
 		blends);
 
 	return pipeline;
+}
+
+void RenderDeferred::set_pipeline(RID p_pipeline) {
+	pipeline = p_pipeline;
 }
 
 void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers) {
@@ -62,13 +69,27 @@ void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buff
 void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers) {
 	update_uniform_set0(p_render_buffers);
 	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list,uniform_set0,0);
+	if (p_render_buffers->has_meta("shader_material")) {
+		RID shader_material = p_render_buffers->get_meta("shader_material");
+		RenderDeferredShader::ShaderData *shader_data = reinterpret_cast<RenderDeferredShader::ShaderData *>(RendererRD::MaterialStorage::get_singleton()->material_get_shader_data(shader_material));
+		pipeline = shader_data->pipeline_cache.get_render_pipeline(RD::VertexFormatID(-1), p_fb_format);
+	}
 	RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, get_pipeline(p_fb_format));
 	RD::get_singleton()->draw_list_draw(p_draw_list, false, 1, 6);
 }
 
+
+
+
 RenderDeferred::RenderDeferred() {
-	//create our vertex array
-	
+
+
+	//use our shader
+	{
+		deferred_shader.init();
+	}
+
+
 	{
 		String vertSrc;
 		//create our vertex shader
@@ -150,7 +171,7 @@ RenderDeferred::RenderDeferred() {
 				RenderingDeviceCommons::ShaderStageSPIRVData sd;
 				sd.shader_stage = stage;
 				String error = bytecode->get_stage_compile_error(stage);
-				print_line(error);
+
 				ERR_FAIL_COND_MSG(!error.is_empty(), "Can't create a shader from an errored bytecode. Check errors in source bytecode.");
 				sd.spirv = bytecode->get_stage_bytecode(stage);
 				if (sd.spirv.is_empty()) {

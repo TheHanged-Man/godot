@@ -1849,6 +1849,7 @@ void MaterialStorage::shader_free(RID p_rid) {
 }
 
 void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
+
 	Shader *shader = shader_owner.get_or_null(p_shader);
 	ERR_FAIL_NULL(shader);
 
@@ -1866,6 +1867,8 @@ void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
 		new_type = SHADER_TYPE_SKY;
 	} else if (mode_string == "fog") {
 		new_type = SHADER_TYPE_FOG;
+	} else if (mode_string == "deferred_process") {
+		new_type = SHADER_TYPE_DEFERRED_PROCESS;
 	} else {
 		new_type = SHADER_TYPE_MAX;
 	}
@@ -1892,6 +1895,7 @@ void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
 		} else {
 			shader->type = SHADER_TYPE_MAX; //invalid
 		}
+
 
 		for (Material *E : shader->owners) {
 			Material *material = E;

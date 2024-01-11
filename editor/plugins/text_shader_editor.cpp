@@ -345,6 +345,8 @@ void ShaderTextEditor::_check_shader_mode() {
 		mode = Shader::MODE_SKY;
 	} else if (type == "fog") {
 		mode = Shader::MODE_FOG;
+	} else if (type == "deferred_process") {
+		mode = Shader::MODE_DEFERRED_PROCESS;
 	} else {
 		mode = Shader::MODE_SPATIAL;
 	}
@@ -387,6 +389,7 @@ static void _complete_include_paths(List<ScriptLanguage::CodeCompletionOption> *
 }
 
 void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptLanguage::CodeCompletionOption> *r_options) {
+
 	List<ScriptLanguage::CodeCompletionOption> pp_options;
 	List<ScriptLanguage::CodeCompletionOption> pp_defines;
 	ShaderPreprocessor preprocessor;
@@ -417,6 +420,7 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptLa
 		comp_info.is_include = true;
 
 		sl.complete(code, comp_info, r_options, calltip);
+
 		get_text_editor()->set_code_hint(calltip);
 		return;
 	}
@@ -426,6 +430,7 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptLa
 	comp_info.shader_types = ShaderTypes::get_singleton()->get_types();
 
 	sl.complete(code, comp_info, r_options, calltip);
+
 	get_text_editor()->set_code_hint(calltip);
 }
 
@@ -452,7 +457,9 @@ void ShaderTextEditor::_validate_script() {
 	} else if (shader_inc.is_valid()) {
 		filename = shader_inc->get_path();
 	}
+
 	last_compile_result = preprocessor.preprocess(code, filename, code_pp, &error_pp, &err_positions, &regions);
+
 
 	for (int i = 0; i < get_text_editor()->get_line_count(); i++) {
 		get_text_editor()->set_line_background_color(i, Color(0, 0, 0, 0));
@@ -472,11 +479,14 @@ void ShaderTextEditor::_validate_script() {
 	set_error_count(0);
 
 	if (last_compile_result != OK) {
+
 		//preprocessor error
 		ERR_FAIL_COND(err_positions.size() == 0);
 
 		String err_text = error_pp;
 		int err_line = err_positions.front()->get().line;
+
+
 		if (err_positions.size() == 1) {
 			// Error in main file
 			err_text = "error(" + itos(err_line) + "): " + err_text;
@@ -494,7 +504,8 @@ void ShaderTextEditor::_validate_script() {
 
 		set_warning_count(0);
 
-	} else {
+	}
+	else {
 		ShaderLanguage sl;
 
 		sl.enable_warning_checking(saved_warnings_enabled);
@@ -532,6 +543,7 @@ void ShaderTextEditor::_validate_script() {
 
 		code = code_pp;
 		//compiler error
+
 		last_compile_result = sl.compile(code, comp_info);
 
 		if (last_compile_result != OK) {

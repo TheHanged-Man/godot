@@ -97,7 +97,11 @@ void Shader::set_code(const String &p_code) {
 		mode = MODE_SKY;
 	} else if (type == "fog") {
 		mode = MODE_FOG;
-	} else {
+	}
+	else if (type == "deferred_process") {
+		mode = MODE_DEFERRED_PROCESS;
+		}
+	 else {
 		mode = MODE_SPATIAL;
 	}
 

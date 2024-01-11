@@ -14,9 +14,15 @@
 #include "servers/rendering/renderer_rd/shaders/forward_clustered/scene_forward_clustered.glsl.gen.h"
 #include "servers/rendering/renderer_rd/storage_rd/utilities.h"
 
+#include "render_deferred_shader.h"
 class RenderDeferred {
 
+
+
 private:
+
+
+	RenderDeferredShader deferred_shader;
 	RID vertex_array;
 	RID shader;
 	RID pipeline;
@@ -24,6 +30,7 @@ private:
 
 public:
 	RID get_pipeline(RD::FramebufferFormatID p_fb_format);
+	void set_pipeline(RID p_pipeline);
 	void update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers);
 	void render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers);
 
