@@ -2734,11 +2734,11 @@ void Node3DEditorViewport::_notification(int p_what) {
 			} else {
 				set_freelook_active(false);
 			}
-			call_deferred(SNAME("update_transform_gizmo_view"));
+			callable_mp(this, &Node3DEditorViewport::update_transform_gizmo_view).call_deferred();
 		} break;
 
 		case NOTIFICATION_RESIZED: {
-			call_deferred(SNAME("update_transform_gizmo_view"));
+			callable_mp(this, &Node3DEditorViewport::update_transform_gizmo_view).call_deferred();
 		} break;
 
 		case NOTIFICATION_PROCESS: {
@@ -3355,7 +3355,7 @@ void Node3DEditorViewport::_menu_option(int p_option) {
 			view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_ORTHOGONAL), false);
 			orthogonal = false;
 			auto_orthogonal = false;
-			call_deferred(SNAME("update_transform_gizmo_view"));
+			callable_mp(this, &Node3DEditorViewport::update_transform_gizmo_view).call_deferred();
 			_update_camera(0);
 			_update_name();
 
@@ -3365,7 +3365,7 @@ void Node3DEditorViewport::_menu_option(int p_option) {
 			view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_ORTHOGONAL), true);
 			orthogonal = true;
 			auto_orthogonal = false;
-			call_deferred(SNAME("update_transform_gizmo_view"));
+			callable_mp(this, &Node3DEditorViewport::update_transform_gizmo_view).call_deferred();
 			_update_camera(0);
 			_update_name();
 		} break;
@@ -3985,8 +3985,6 @@ Dictionary Node3DEditorViewport::get_state() const {
 }
 
 void Node3DEditorViewport::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("update_transform_gizmo_view"), &Node3DEditorViewport::update_transform_gizmo_view); // Used by call_deferred.
-
 	ADD_SIGNAL(MethodInfo("toggle_maximize_view", PropertyInfo(Variant::OBJECT, "viewport")));
 	ADD_SIGNAL(MethodInfo("clicked", PropertyInfo(Variant::OBJECT, "viewport")));
 }
@@ -8060,6 +8058,8 @@ void Node3DEditor::_bind_methods() {
 	ClassDB::bind_method("_set_subgizmo_selection", &Node3DEditor::_set_subgizmo_selection);
 	ClassDB::bind_method("_clear_subgizmo_selection", &Node3DEditor::_clear_subgizmo_selection);
 	ClassDB::bind_method("_refresh_menu_icons", &Node3DEditor::_refresh_menu_icons);
+
+	ClassDB::bind_method("update_all_gizmos", &Node3DEditor::update_all_gizmos);
 
 	ADD_SIGNAL(MethodInfo("transform_key_request"));
 	ADD_SIGNAL(MethodInfo("item_lock_status_changed"));
