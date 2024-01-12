@@ -1867,6 +1867,8 @@ void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
 		new_type = SHADER_TYPE_SKY;
 	} else if (mode_string == "fog") {
 		new_type = SHADER_TYPE_FOG;
+	} else if (mode_string == "post_process") {
+		new_type = SHADER_TYPE_POST_PROCESS;
 	} else if (mode_string == "deferred_process") {
 		new_type = SHADER_TYPE_DEFERRED_PROCESS;
 	} else {

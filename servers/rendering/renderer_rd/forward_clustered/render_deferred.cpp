@@ -1,6 +1,8 @@
 #include "render_deferred.h"
 #include "render_deferred_shader.h"
 #include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
+#include "servers/rendering/renderer_rd/environment/post_process.h"
+#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
 
 
 RID RenderDeferred::get_pipeline(RD::FramebufferFormatID p_fb_format) {
@@ -26,7 +28,8 @@ void RenderDeferred::set_pipeline(RID p_pipeline) {
 	pipeline = p_pipeline;
 }
 
-void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers) {
+
+void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader) {
 	Vector<RD::Uniform> uniforms;
 
 	// bind 0
@@ -63,27 +66,32 @@ void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buff
 		uniforms.push_back(u);
 	}
 
-	uniform_set0 = RD::get_singleton()->uniform_set_create(uniforms,shader,0);
+	uniform_set0 = RD::get_singleton()->uniform_set_create(uniforms, p_shader, 0);
 }
 
 void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers) {
-	update_uniform_set0(p_render_buffers);
-	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list,uniform_set0,0);
-	if (p_render_buffers->has_meta("shader_material")) {
-		RID shader_material = p_render_buffers->get_meta("shader_material");
-		RenderDeferredShader::ShaderData *shader_data = reinterpret_cast<RenderDeferredShader::ShaderData *>(RendererRD::MaterialStorage::get_singleton()->material_get_shader_data(shader_material));
-		pipeline = shader_data->pipeline_cache.get_render_pipeline(RD::VertexFormatID(-1), p_fb_format);
+	RID material;
+	if (p_render_buffers->has_meta("post_process_material")) {
+		material = p_render_buffers->get_meta("post_process_material");
+	} else {
+		material = RendererRD::PostProcessRD::get_singleton()->post_process_shader.default_material;
 	}
-	RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, get_pipeline(p_fb_format));
+
+	
+	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
+	RendererRD::PostProcessRD::PostProcessShaderData *shader_data = reinterpret_cast<RendererRD::PostProcessRD::PostProcessShaderData *>(material_storage->material_get_shader_data(material));
+	RID p_shader = RendererRD::PostProcessRD::get_singleton()->post_process_shader.shader.version_get_shader(shader_data->version, 0);
+
+	update_uniform_set0(p_render_buffers, p_shader);
+	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list, uniform_set0, 0);
+
+	RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, shader_data->pipeline.get_render_pipeline(RD::VertexFormatID(-1), p_fb_format));
 	RD::get_singleton()->draw_list_draw(p_draw_list, false, 1, 6);
 }
 
-
-
-
 RenderDeferred::RenderDeferred() {
 
-
+#if 0
 	//use our shader
 	{
 		deferred_shader.init();
@@ -94,30 +102,7 @@ RenderDeferred::RenderDeferred() {
 		String vertSrc;
 		//create our vertex shader
 		{
-			vertSrc = String("\n\
-				#version 450\n       \
-				vec2 positions[6] = vec2[](\n                           \
-					vec2(-1.0, -1.0),\n                              \
-					vec2(1.0, -1.0),\n                               \
-					vec2(-1.0, 1.0),\n                               \
-					vec2(-1.0, 1.0),\n                               \
-					vec2(1.0, -1.0),\n                               \
-					vec2(1.0, 1.0));\n                               \
-				vec2 uvs[6] = vec2[](\n                           \
-					vec2(0.0,0.0),\n                              \
-					vec2(1.0, 0.0),\n                               \
-					vec2(0.0, 1.0),\n                               \
-					vec2(0.0, 1.0),\n                               \
-					vec2(1.0, 0.0),\n                               \
-					vec2(1.0, 1.0));\n                               \
-				layout(location = 0) out vec2 uv;\n\
-			layout(set = 0, binding = 0) uniform sampler _sampler;\n\
-			layout(set = 0, binding = 1) uniform texture2D custom_color;   \n\
-			layout(set = 0, binding = 2) uniform texture2D custom_tex0;   \n\
-				void main() {   \n                                          \
-				 gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);\n\
-				 uv=uvs[gl_VertexIndex];\n\
-		}\n");
+			vertSrc = String("");
 
 		}
 
@@ -125,19 +110,7 @@ RenderDeferred::RenderDeferred() {
 		String fragSrc;
 		//create our frag shader
 		{
-			fragSrc = String("\n\
-			#version 450	\n\
-			layout(location = 0) in vec2 uv;\n\
-			layout(location = 0) out vec4 outColor;\n\
-			layout(set = 0, binding = 0) uniform sampler _sampler;\n\
-			layout(set = 0, binding = 1) uniform texture2D custom_color;   \n\
-			layout(set = 0, binding = 2) uniform texture2D custom_tex0;   \n\
-			\
-			void main() {\n\
-			vec3 color = texture(sampler2D(custom_color,_sampler),uv,0).rgb;\n\
-			vec3 normal = texture(sampler2D(custom_tex0,_sampler),uv,0).rgb;\n\
-			outColor=vec4(0.9*color+0.1*normal,1.0);\n\
-			}\n");
+			fragSrc = String("");
 		}
 
 		//Compile Shader
@@ -188,6 +161,7 @@ RenderDeferred::RenderDeferred() {
 			
 		}
 	}
+#endif
 
 }
 

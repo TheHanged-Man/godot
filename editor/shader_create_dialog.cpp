@@ -211,6 +211,13 @@ void fog() {
 	// a given FogVolume will still be used.
 }
 )";
+						break;
+					case Shader::MODE_POST_PROCESS:
+						code += R"(
+void process() {
+	// post_process
+}
+)";
 				}
 			}
 			text_shader->set_code(code.as_string());

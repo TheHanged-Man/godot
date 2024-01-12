@@ -1308,6 +1308,10 @@ void RendererSceneRenderRD::init() {
 
 	sky.init();
 
+	/* POST_PROCESS */
+
+	post_process.init();
+
 	/* GI */
 
 	if (is_dynamic_gi_supported()) {
@@ -1398,6 +1402,8 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 	if (is_dynamic_gi_supported()) {
 		gi.free();
 	}
+
+	post_process.free();
 
 	if (is_volumetric_supported()) {
 		RendererRD::Fog::get_singleton()->free_fog_shader();

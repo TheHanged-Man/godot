@@ -2030,7 +2030,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 			RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(color_fb, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_LOAD, RD::FINAL_ACTION_STORE, clear_colors);
 
 			// 将 custom framebuffer 的内容绘制到原有的 color framebuffer
-			render_deferred->render_color_buffer(draw_list, fb_format,rb);
+			render_deferred->render_color_buffer(draw_list, fb_format, rb);
 
 			RD::get_singleton()->draw_list_end();
 

@@ -23,15 +23,15 @@ private:
 
 
 	RenderDeferredShader deferred_shader;
-	RID vertex_array;
-	RID shader;
 	RID pipeline;
+	RID shader;
+	RID vertex_array;
 	RID uniform_set0;
 
 public:
 	RID get_pipeline(RD::FramebufferFormatID p_fb_format);
 	void set_pipeline(RID p_pipeline);
-	void update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers);
+	void update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader);
 	void render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers);
 
 	RenderDeferred();

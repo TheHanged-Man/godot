@@ -345,6 +345,8 @@ void ShaderTextEditor::_check_shader_mode() {
 		mode = Shader::MODE_SKY;
 	} else if (type == "fog") {
 		mode = Shader::MODE_FOG;
+	} else if (type == "post_process") {
+		mode = Shader::MODE_POST_PROCESS;
 	} else if (type == "deferred_process") {
 		mode = Shader::MODE_DEFERRED_PROCESS;
 	} else {
