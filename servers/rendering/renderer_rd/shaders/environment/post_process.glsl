@@ -58,9 +58,11 @@ layout(set = 1, binding = 0, std140) uniform SceneDataBlock {
 scene_data_block;
 
 vec3 diffuse(vec3 color, vec3 normal, vec3 position) {
-    l1.position = (scene_data_block.data.view_matrix * vec4(l1.position, 1.0)).xyz;
+    // l1.position = (scene_data_block.data.view_matrix * vec4(l1.position, 1.0)).xyz;
+    vec3 dir = vec3(0.0, 0.0, -1.0);
+    dir = (scene_data_block.data.view_matrix * vec4(dir, 0.0)).xyz;
 
-    float lDotN = max(dot(normal, normalize(l1.position - position)), 0.0);
+    float lDotN = max(dot(normal, dir), 0.0);
     return lDotN * l1.color * l1.intensity * color;
 }
 
