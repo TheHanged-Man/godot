@@ -29,7 +29,7 @@ void RenderDeferred::set_pipeline(RID p_pipeline) {
 }
 
 
-void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader) {
+void RenderDeferred::update_texture_uniform_set(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader) {
 	Vector<RD::Uniform> uniforms;
 
 	// bind 0
@@ -66,10 +66,46 @@ void RenderDeferred::update_uniform_set0(Ref<RenderSceneBuffersRD> p_render_buff
 		uniforms.push_back(u);
 	}
 
-	uniform_set0 = RD::get_singleton()->uniform_set_create(uniforms, p_shader, 0);
+	// bind 3, depth texture
+	{
+		RD::Uniform u;
+		u.uniform_type = RD::UNIFORM_TYPE_TEXTURE;
+		u.binding = 3;
+		u.append_id(p_render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH));
+
+		uniforms.push_back(u);
+	}
+
+	// bind position texture
+	{
+		RD::Uniform u;
+		u.uniform_type = RD::UNIFORM_TYPE_TEXTURE;
+		u.binding = 4;
+		u.append_id(p_render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_POSITION));
+
+		uniforms.push_back(u);
+	}
+
+	texture_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, p_shader, TEX_UNIFORM_SET);
 }
 
-void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers) {
+// update render pass uniform set
+void RenderDeferred::update_data_uniform_set(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader, RenderDataRD *p_render_data) {
+	Vector<RD::Uniform> uniforms;
+
+	// bind scene data
+	{
+		RD::Uniform u;
+		u.binding = 0;
+		u.uniform_type = RD::UNIFORM_TYPE_UNIFORM_BUFFER;
+		u.append_id(p_render_data->scene_data->get_uniform_buffer());
+		uniforms.push_back(u);
+	}
+
+	data_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, p_shader, DATA_UNIFORM_SET);
+}
+
+void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers, RenderDataRD *p_render_data) {
 	RID material;
 	if (p_render_buffers->has_meta("post_process_material")) {
 		material = p_render_buffers->get_meta("post_process_material");
@@ -82,8 +118,10 @@ void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::Framebu
 	RendererRD::PostProcessRD::PostProcessShaderData *shader_data = reinterpret_cast<RendererRD::PostProcessRD::PostProcessShaderData *>(material_storage->material_get_shader_data(material));
 	RID p_shader = RendererRD::PostProcessRD::get_singleton()->post_process_shader.shader.version_get_shader(shader_data->version, 0);
 
-	update_uniform_set0(p_render_buffers, p_shader);
-	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list, uniform_set0, 0);
+	update_texture_uniform_set(p_render_buffers, p_shader);
+	update_data_uniform_set(p_render_buffers, p_shader, p_render_data);
+	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list, texture_uniform_set, TEX_UNIFORM_SET);
+	RD::get_singleton()->draw_list_bind_uniform_set(p_draw_list, data_uniform_set, DATA_UNIFORM_SET);
 
 	RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, shader_data->pipeline.get_render_pipeline(RD::VertexFormatID(-1), p_fb_format));
 	RD::get_singleton()->draw_list_draw(p_draw_list, false, 1, 6);

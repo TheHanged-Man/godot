@@ -215,8 +215,9 @@ RID RendererSceneRenderImplementation::RenderForwardClustered::RenderBufferDataF
 
 	RID depth =  render_buffers->get_depth_texture();
 	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0);
+	RID position = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_POSITION);
 
-	return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, depth, custom_0);
+	return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, depth, custom_0, position);
 }
 
 RID RenderForwardClustered::RenderBufferDataForwardClustered::get_depth_fb(DepthFrameBufferType p_type) {
@@ -1996,7 +1997,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 					//替换原有的framebuffer内容，因此此处需要根据自定义内容考虑补充的clear color数目
 					//c.push_back(Color(0, 0, 0, 0)); // Separate specular.
 					//c.push_back(Color(0, 0, 0, 0)); // Motion vector. Pushed to the clear color vector even if the framebuffer isn't bound.
-					c.push_back(Color(0, 0, 0, 1.0)); //Custom 
+					c.push_back(Color(0, 0, 0, 1.0)); //Custom
+					c.push_back(Color(1, 0, 0, 1.0)); //position
 				}
 			}
 
@@ -2030,7 +2032,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 			RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(color_fb, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_LOAD, RD::FINAL_ACTION_STORE, clear_colors);
 
 			// 将 custom framebuffer 的内容绘制到原有的 color framebuffer
-			render_deferred->render_color_buffer(draw_list, fb_format, rb);
+			render_deferred->render_color_buffer(draw_list, fb_format, rb, p_render_data);
 
 			RD::get_singleton()->draw_list_end();
 

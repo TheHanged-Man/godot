@@ -53,6 +53,7 @@
 #define RB_TEX_DEPTH SNAME("depth")
 #define RB_TEX_CUSTOM_COLOR SNAME("custom_color")
 #define RB_TEX_CUSTOM0 SNAME("custom_0")
+#define RB_TEX_POSITION SNAME("position")
 
 #define RB_TEX_DEPTH_MSAA SNAME("depth_msaa")
 #define RB_TEX_VELOCITY SNAME("velocity")

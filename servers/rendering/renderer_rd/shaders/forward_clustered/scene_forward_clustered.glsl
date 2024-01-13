@@ -773,6 +773,7 @@ layout(location = 0) out vec4 frag_color;
 #ifndef CUSTOM_USE_ALPHA
 
 layout(location = 1) out vec4 custom_0_color;
+layout(location = 2) out vec4 custom_position_color;
 
 #endif // MODE_CUSTOM
 
@@ -2416,6 +2417,7 @@ void fragment_shader(in SceneData scene_data) {
 
 #ifndef CUSTOM_USE_ALPHA
 	custom_0_color=vec4(normal_interp,1.0);
+	custom_position_color = vec4(vertex_interp, 1.0);
 #endif
 
 #ifdef MODE_UNSHADED

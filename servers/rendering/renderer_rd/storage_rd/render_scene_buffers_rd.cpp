@@ -210,6 +210,14 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0, format, usage_bits);
 	}
 
+	// create our position buffer
+	{
+		RD::DataFormat format = RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
+		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
+
+		create_texture(RB_SCOPE_BUFFERS, RB_TEX_POSITION, format, usage_bits);
+	
+	}
 
 	// Create our MSAA buffers
 	if (msaa_3d == RS::VIEWPORT_MSAA_DISABLED) {
