@@ -204,7 +204,7 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 	}
 	//Create our Custom buffer
 	{
-		RD::DataFormat format = RD::DATA_FORMAT_R8G8B8A8_UNORM;
+		RD::DataFormat format = RD::DATA_FORMAT_R8G8B8A8_SNORM;
 		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
 
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0, format, usage_bits);
