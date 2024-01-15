@@ -1,33 +1,6 @@
 #include "render_deferred.h"
-#include "render_deferred_shader.h"
 #include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
-#include "servers/rendering/renderer_rd/environment/post_process.h"
-#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
-
-
-RID RenderDeferred::get_pipeline(RD::FramebufferFormatID p_fb_format) {
-	if (pipeline.is_valid())
-		return pipeline;
-
-	RenderingDeviceCommons::PipelineColorBlendState blends = RenderingDeviceCommons::PipelineColorBlendState::create_disabled(1);
-
-	pipeline = RD::get_singleton()->render_pipeline_create(
-		shader,
-		p_fb_format,
-		RD::VertexFormatID(-1),
-		RD::RENDER_PRIMITIVE_TRIANGLES,
-		RD::PipelineRasterizationState(),
-		RenderingDeviceCommons::PipelineMultisampleState(),
-		RenderingDeviceCommons::PipelineDepthStencilState(),
-		blends);
-
-	return pipeline;
-}
-
-void RenderDeferred::set_pipeline(RID p_pipeline) {
-	pipeline = p_pipeline;
-}
-
+#include "servers/rendering/renderer_rd/forward_clustered/shader_deferred_rendering.h"
 
 void RenderDeferred::update_texture_uniform_set(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader) {
 	Vector<RD::Uniform> uniforms;
@@ -107,16 +80,16 @@ void RenderDeferred::update_data_uniform_set(Ref<RenderSceneBuffersRD> p_render_
 
 void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::FramebufferFormatID p_fb_format, Ref<RenderSceneBuffersRD> p_render_buffers, RenderDataRD *p_render_data) {
 	RID material;
-	if (p_render_buffers->has_meta("post_process_material")) {
-		material = p_render_buffers->get_meta("post_process_material");
+	if (p_render_buffers->has_meta("deferred_process_material")) {
+		material = p_render_buffers->get_meta("deferred_process_material");
 	} else {
-		material = RendererRD::PostProcessRD::get_singleton()->post_process_shader.default_material;
+		material = RendererRD::DeferredRenderingRD::get_singleton()->deferred_rendering_shader.default_material;
 	}
 
 	
 	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
-	RendererRD::PostProcessRD::PostProcessShaderData *shader_data = reinterpret_cast<RendererRD::PostProcessRD::PostProcessShaderData *>(material_storage->material_get_shader_data(material));
-	RID p_shader = RendererRD::PostProcessRD::get_singleton()->post_process_shader.shader.version_get_shader(shader_data->version, 0);
+	RendererRD::DeferredRenderingRD::DeferredRenderingShaderData *shader_data = reinterpret_cast<RendererRD::DeferredRenderingRD::DeferredRenderingShaderData *>(material_storage->material_get_shader_data(material));
+	RID p_shader = RendererRD::DeferredRenderingRD::get_singleton()->deferred_rendering_shader.shader.version_get_shader(shader_data->version, 0);
 
 	update_texture_uniform_set(p_render_buffers, p_shader);
 	update_data_uniform_set(p_render_buffers, p_shader, p_render_data);

@@ -97,8 +97,6 @@ void Shader::set_code(const String &p_code) {
 		mode = MODE_SKY;
 	} else if (type == "fog") {
 		mode = MODE_FOG;
-	} else if (type == "post_process") {
-		mode = MODE_POST_PROCESS;
 	} else if (type == "deferred_process") {
 		mode = MODE_DEFERRED_PROCESS;
 	} else {
@@ -220,7 +218,7 @@ void Shader::_bind_methods() {
 	BIND_ENUM_CONSTANT(MODE_PARTICLES);
 	BIND_ENUM_CONSTANT(MODE_SKY);
 	BIND_ENUM_CONSTANT(MODE_FOG);
-	BIND_ENUM_CONSTANT(MODE_POST_PROCESS);
+	BIND_ENUM_CONSTANT(MODE_DEFERRED_PROCESS);
 }
 
 Shader::Shader() {

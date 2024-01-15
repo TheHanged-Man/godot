@@ -212,10 +212,10 @@ void fog() {
 }
 )";
 						break;
-					case Shader::MODE_POST_PROCESS:
+					case Shader::MODE_DEFERRED_PROCESS:
 						code += R"(
 void process() {
-	// post_process
+	// deferred_process
 }
 )";
 				}

@@ -490,16 +490,10 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[RS::SHADER_FOG].functions["fog"].built_ins["EMISSION"] = ShaderLanguage::TYPE_VEC3;
 	shader_modes[RS::SHADER_FOG].functions["fog"].main_function = true;
 
-	/************* POST_PROCESS ****************/
-
-	shader_modes[RS::SHADER_POST_PROCESS].functions["process"].built_ins["COLOR_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
-	shader_modes[RS::SHADER_POST_PROCESS].functions["process"].built_ins["NORMAL_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
-	shader_modes[RS::SHADER_POST_PROCESS].functions["process"].main_function = true;
-
 	/*************** DEFERRED ***********************/
 
-	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["FIX0"] = ShaderLanguage::TYPE_FLOAT;
-	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["FIX1"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["COLOR_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["NORMAL_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
 	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].can_discard = false;
 	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].main_function = true;
 
@@ -508,7 +502,6 @@ ShaderTypes::ShaderTypes() {
 	shader_types_list.push_back("particles");
 	shader_types_list.push_back("sky");
 	shader_types_list.push_back("fog");
-	shader_types_list.push_back("post_process");
 	shader_types_list.push_back("deferred_process");
 
 	for (int i = 0; i < shader_types_list.size(); i++) {

@@ -1310,7 +1310,7 @@ void RendererSceneRenderRD::init() {
 
 	/* POST_PROCESS */
 
-	post_process.init();
+	deferred_rendering_process.init();
 
 	/* GI */
 
@@ -1403,7 +1403,7 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 		gi.free();
 	}
 
-	post_process.free();
+	deferred_rendering_process.free();
 
 	if (is_volumetric_supported()) {
 		RendererRD::Fog::get_singleton()->free_fog_shader();
