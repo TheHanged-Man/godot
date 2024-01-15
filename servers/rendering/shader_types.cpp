@@ -492,10 +492,33 @@ ShaderTypes::ShaderTypes() {
 
 	/*************** DEFERRED ***********************/
 
-	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["COLOR_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
-	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["NORMAL_PERCENT"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["VIEW_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["INV_VIEW_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["PROJECTION_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["INV_PROJECTION_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["UV"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["NORMAL"] = ShaderLanguage::TYPE_VEC3;
+
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC3;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].built_ins["POSITION"] = ShaderLanguage::TYPE_VEC3;
+
 	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].can_discard = false;
 	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["process"].main_function = true;
+
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["VIEW_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["INV_VIEW_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["PROJECTION_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["INV_PROJECTION_MATRIX"] = constt(ShaderLanguage::TYPE_MAT4);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["UV"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["NORMAL"] = constt(ShaderLanguage::TYPE_VEC3);
+
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["LIGHT_DIR"] = ShaderLanguage::TYPE_VEC3;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["LIGHT_COLOR"] = ShaderLanguage::TYPE_VEC3;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["LIGHT_IS_DIRECTIONAL"] = constt(ShaderLanguage::TYPE_BOOL);
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].built_ins["COLOR"] = constt(ShaderLanguage::TYPE_VEC3);
+
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].can_discard = true;
+	shader_modes[RS::SHADER_DEFERRED_PROCESS].functions["light"].main_function = true;
 
 	shader_types_list.push_back("spatial");
 	shader_types_list.push_back("canvas_item");

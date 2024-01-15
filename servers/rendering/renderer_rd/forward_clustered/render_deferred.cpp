@@ -34,7 +34,7 @@ void RenderDeferred::update_texture_uniform_set(Ref<RenderSceneBuffersRD> p_rend
 		RD::Uniform u;
 		u.uniform_type = RD::UNIFORM_TYPE_TEXTURE;
 		u.binding = 2;
-		u.append_id(p_render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0));
+		u.append_id(p_render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEFER_NORMAL));
 
 		uniforms.push_back(u);
 	}

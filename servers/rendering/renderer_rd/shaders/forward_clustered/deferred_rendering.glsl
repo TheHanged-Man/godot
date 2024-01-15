@@ -58,27 +58,17 @@ layout(set = 1, binding = 1, std140) uniform DirectionalLights {
 }
 directional_lights;
 
-vec3 diffuse(vec3 color, vec3 normal, vec3 position) {
-
-    vec3 l_color = vec3(0.0);
-    for (int i = 0; i < scene_data_block.data.directional_light_count; i++) {
-        DirectionalLightData l_data = directional_lights.data[i];
-        if (l_data.energy == 0.0) {
-            break;
-        }
-        float lDotN = max(dot(normal, l_data.direction), 0.0);
-        l_color += lDotN * l_data.color * l_data.energy * color;
-    }
-    
-    return l_color;
-}
 
 void main() {
+	SceneData scene_data = scene_data_block.data;
+    highp mat4 r_view_matrix = scene_data.view_matrix;
+    highp mat4 r_inv_view_matrix = scene_data.inv_view_matrix;
+    highp mat4 r_projection_matrix = scene_data.projection_matrix;
+    highp mat4 r_inv_projection_matrix = scene_data.inv_projection_matrix;
+
     vec3 color = texture(sampler2D(diffuse_texture, _sampler), uv, 0).rgb;
     vec3 normal = texture(sampler2D(normal_texture, _sampler), uv, 0).rgb;
     vec3 position = texture(sampler2D(position_texure, _sampler), uv, 0).rgb;
-    float colorPercent = 0.9;
-    float normalPercent = 0.1;
 
     {
 
@@ -86,5 +76,26 @@ void main() {
 
     }
 
-    outColor = vec4(diffuse(color, normal, position), 1.0);
+
+    vec3 l_color = vec3(0.0);
+    for (int i = 0; i < scene_data_block.data.directional_light_count; i++) {
+        DirectionalLightData directional_light = directional_lights.data[i];
+        vec3 light_dir = directional_light.direction;
+        vec3 light_color = directional_light.color;
+        bool light_is_directional = true;
+
+        {
+
+#CODE : LIGHT
+
+        }
+
+        if (directional_light.energy == 0.0) {
+            break;
+        }
+        float lDotN = max(dot(normal, light_dir), 0.0);
+        l_color += lDotN * light_color * directional_light.energy * color;
+    }
+
+    outColor = vec4(l_color, 1.0);
 }

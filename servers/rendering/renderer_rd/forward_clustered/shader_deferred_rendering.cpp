@@ -54,6 +54,7 @@ void DeferredRenderingRD::DeferredRenderingShaderData::set_code(const String &p_
 	ShaderCompiler::GeneratedCode gen_code;
 	ShaderCompiler::IdentifierActions actions;
 	actions.entry_point_stages["process"] = ShaderCompiler::STAGE_FRAGMENT;
+    actions.entry_point_stages["light"] = ShaderCompiler::STAGE_FRAGMENT;
 
 	actions.uniforms = &uniforms;
 
@@ -125,8 +126,19 @@ void DeferredRenderingRD::init_deferred_rendering_shader() {
     {
         ShaderCompiler::DefaultIdentifierActions actions;
 
-        actions.renames["COLOR_PERCENT"] = "colorPercent";
-        actions.renames["NORMAL_PERCENT"] = "normalPercent";
+
+		actions.renames["VIEW_MATRIX"] = "r_view_matrix";
+		actions.renames["INV_VIEW_MATRIX"] = "r_inv_view_matrix";
+		actions.renames["PROJECTION_MATRIX"] = "r_projection_matrix";
+		actions.renames["INV_PROJECTION_MATRIX"] = "r_inv_projection_matrix";
+		actions.renames["UV"] = "uv";
+        actions.renames["NORMAL"] = "normal";
+
+        actions.renames["COLOR"] = "color";
+        actions.renames["POSITION"] = "position";
+        actions.renames["LIGHT_DIR"] = "light_dir";
+		actions.renames["LIGHT_COLOR"] = "light_color";
+		actions.renames["LIGHT_IS_DIRECTIONAL"] = "light_is_directional";
 
         DeferredRenderingRD::get_singleton()->deferred_rendering_shader.compiler.initialize(actions);
     }
@@ -141,8 +153,7 @@ void DeferredRenderingRD::init_deferred_rendering_shader() {
 shader_type deferred_process;
 
 void process() {
-    COLOR_PERCENT = 0.9;
-    NORMAL_PERCENT = 0.1;
+    // get the color from the gbuffer
 }
 )");
 

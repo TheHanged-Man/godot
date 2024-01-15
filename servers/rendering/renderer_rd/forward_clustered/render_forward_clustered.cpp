@@ -191,7 +191,7 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_pass_fb(
 	}
 
 	RID depth = use_msaa ? render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH_MSAA) : render_buffers->get_depth_texture();
-	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0);
+	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEFER_NORMAL);
 
 	if (render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE)) {
 		RID vrs_texture = render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
@@ -214,7 +214,7 @@ RID RendererSceneRenderImplementation::RenderForwardClustered::RenderBufferDataF
 	RID color = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM_COLOR);
 
 	RID depth =  render_buffers->get_depth_texture();
-	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0);
+	RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEFER_NORMAL);
 	RID position = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_POSITION);
 
 	return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, depth, custom_0, position);
@@ -248,7 +248,7 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_depth_fb(Depth
 		} break;
 		case DEPTH_CUSTOM_FB: {
 			//暂时用不到，以后或许有用 祈祷
-			RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0);
+			RID custom_0 = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEFER_NORMAL);
 			return FramebufferCacheRD::get_singleton()->get_cache_multiview(render_buffers->get_view_count(), depth, custom_0);
 		} break;
 		default: {

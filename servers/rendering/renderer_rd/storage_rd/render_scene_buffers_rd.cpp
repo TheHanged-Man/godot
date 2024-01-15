@@ -193,6 +193,7 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 
 
 	//Create our Custom Color buffer
+	//暂时存放的是不透明队列渲染后的颜色，想获取纯色albedo的话，需要在将物体设为unshaded（无光照）
 	{
 		// Create our color buffer(s)
 		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0) | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -204,10 +205,11 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 	}
 	//Create our Custom buffer
 	{
-		RD::DataFormat format = RD::DATA_FORMAT_R8G8B8A8_SNORM;
+		// RD::DataFormat format = RD::DATA_FORMAT_R32G32B32A32_SFLOAT;
+		RD::DataFormat format = RD::DATA_FORMAT_R16G16B16A16_SNORM;
 		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT |RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
 
-		create_texture(RB_SCOPE_BUFFERS, RB_TEX_CUSTOM0, format, usage_bits);
+		create_texture(RB_SCOPE_BUFFERS, RB_TEX_DEFER_NORMAL, format, usage_bits);
 	}
 
 	// create our position buffer
