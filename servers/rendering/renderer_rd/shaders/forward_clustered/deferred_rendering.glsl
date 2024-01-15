@@ -2,7 +2,6 @@
 
 #version 450
 #define MAX_VIEWS 2
-#include "../scene_data_inc.glsl"
 
 vec2 positions[6] = vec2[](
     vec2(-1.0, -1.0),
@@ -33,15 +32,12 @@ void main() {
 
 #version 450
 
+#VERSION_DEFINES
+
 #define MAX_VIEWS 2
 
 #include "../scene_data_inc.glsl"
-
-struct DirectionalLight {
-    vec3 position;
-    vec3 color;
-    float intensity;
-} l1;
+#include "../light_data_inc.glsl"
 
 layout(location = 0) in vec2 uv;
 layout(location = 0) out vec4 outColor;
@@ -57,17 +53,27 @@ layout(set = 1, binding = 0, std140) uniform SceneDataBlock {
 }
 scene_data_block;
 
-vec3 diffuse(vec3 color, vec3 normal, vec3 position) {
-    // l1.position = (scene_data_block.data.view_matrix * vec4(l1.position, 1.0)).xyz;
-    vec3 dir = vec3(0.0, 0.0, -1.0);
-    dir = (scene_data_block.data.view_matrix * vec4(dir, 0.0)).xyz;
+layout(set = 1, binding = 1, std140) uniform DirectionalLights {
+	DirectionalLightData data[MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS];
+}
+directional_lights;
 
-    float lDotN = max(dot(normal, dir), 0.0);
-    return lDotN * l1.color * l1.intensity * color;
+vec3 diffuse(vec3 color, vec3 normal, vec3 position) {
+
+    vec3 l_color = vec3(0.0);
+    for (int i = 0; i < scene_data_block.data.directional_light_count; i++) {
+        DirectionalLightData l_data = directional_lights.data[i];
+        if (l_data.energy == 0.0) {
+            break;
+        }
+        float lDotN = max(dot(normal, l_data.direction), 0.0);
+        l_color += lDotN * l_data.color * l_data.energy * color;
+    }
+    
+    return l_color;
 }
 
 void main() {
-    l1 = DirectionalLight(vec3(0.0, 10.0, 0.0), vec3(0.0, 1.0, 0.0), 1.0);
     vec3 color = texture(sampler2D(diffuse_texture, _sampler), uv, 0).rgb;
     vec3 normal = texture(sampler2D(normal_texture, _sampler), uv, 0).rgb;
     vec3 position = texture(sampler2D(position_texure, _sampler), uv, 0).rgb;

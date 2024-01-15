@@ -74,6 +74,13 @@ void RenderDeferred::update_data_uniform_set(Ref<RenderSceneBuffersRD> p_render_
 		u.append_id(p_render_data->scene_data->get_uniform_buffer());
 		uniforms.push_back(u);
 	}
+	{
+		RD::Uniform u;
+		u.binding = 1;
+		u.uniform_type = RD::UNIFORM_TYPE_UNIFORM_BUFFER;
+		u.append_id(RendererRD::LightStorage::get_singleton()->get_directional_light_buffer());
+		uniforms.push_back(u);
+	}
 
 	data_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, p_shader, DATA_UNIFORM_SET);
 }

@@ -115,7 +115,8 @@ void DeferredRenderingRD::init_deferred_rendering_shader() {
     }
 
     {
-        String defines = "\n";
+        String defines;
+		defines += "\n#define MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS " + itos(RendererSceneRender::MAX_DIRECTIONAL_LIGHTS) + "\n";
         Vector<String> deferred_process_modes;
         deferred_process_modes.push_back("");
         deferred_rendering_shader.shader.initialize(deferred_process_modes, defines);
