@@ -16,3 +16,4 @@ struct DecalData {
 	mediump vec3 normal;
 	mediump float normal_fade;
 };
+

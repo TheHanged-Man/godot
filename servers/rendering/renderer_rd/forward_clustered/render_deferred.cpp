@@ -1,14 +1,17 @@
 #include "render_deferred.h"
-#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
 #include "servers/rendering/renderer_rd/forward_clustered/shader_deferred_rendering.h"
+#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
+#include "servers/rendering/renderer_rd/storage_rd/texture_storage.h"
 
 void RenderDeferred::update_texture_uniform_set(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shader) {
+	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
+
 	Vector<RD::Uniform> uniforms;
 
 	// bind 0
 	{
 		RenderingDeviceCommons::SamplerState sampler_state;
-		
+
 		RID sp = RD::get_singleton()->sampler_create(sampler_state);
 
 		RD::Uniform u;
@@ -59,6 +62,39 @@ void RenderDeferred::update_texture_uniform_set(Ref<RenderSceneBuffersRD> p_rend
 		uniforms.push_back(u);
 	}
 
+	//bind shadow sampler
+	{
+		RenderingDeviceCommons::SamplerState sampler_state;
+		sampler_state.mag_filter = RD::SAMPLER_FILTER_NEAREST;
+		sampler_state.min_filter = RD::SAMPLER_FILTER_NEAREST;
+		sampler_state.enable_compare = true;
+		sampler_state.compare_op = RD::COMPARE_OP_LESS;
+		RID sp = RD::get_singleton()->sampler_create(sampler_state);
+
+		RD::Uniform u;
+		u.uniform_type = RD::UNIFORM_TYPE_SAMPLER;
+		u.binding = 5;
+		u.append_id(sp);
+
+		uniforms.push_back(u);
+	}
+
+
+	//bind shadow texture
+	{
+		RD::Uniform u;
+		u.binding = 6;
+		u.uniform_type = RD::UNIFORM_TYPE_TEXTURE;
+
+		if (RendererRD::LightStorage::get_singleton()->directional_shadow_get_texture().is_valid()) {
+
+			u.append_id(RendererRD::LightStorage::get_singleton()->directional_shadow_get_texture());
+		} else {
+			u.append_id(texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_DEPTH));
+		}
+		uniforms.push_back(u);
+	}
+
 	texture_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, p_shader, TEX_UNIFORM_SET);
 }
 
@@ -74,6 +110,7 @@ void RenderDeferred::update_data_uniform_set(Ref<RenderSceneBuffersRD> p_render_
 		u.append_id(p_render_data->scene_data->get_uniform_buffer());
 		uniforms.push_back(u);
 	}
+
 	{
 		RD::Uniform u;
 		u.binding = 1;
@@ -93,7 +130,6 @@ void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::Framebu
 		material = RendererRD::DeferredRenderingRD::get_singleton()->deferred_rendering_shader.default_material;
 	}
 
-	
 	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
 	RendererRD::DeferredRenderingRD::DeferredRenderingShaderData *shader_data = reinterpret_cast<RendererRD::DeferredRenderingRD::DeferredRenderingShaderData *>(material_storage->material_get_shader_data(material));
 	RID p_shader = RendererRD::DeferredRenderingRD::get_singleton()->deferred_rendering_shader.shader.version_get_shader(shader_data->version, 0);
@@ -108,7 +144,6 @@ void RenderDeferred::render_color_buffer(RD::DrawListID p_draw_list, RD::Framebu
 }
 
 RenderDeferred::RenderDeferred() {
-
 #if 0
 	//use our shader
 	{
@@ -180,6 +215,4 @@ RenderDeferred::RenderDeferred() {
 		}
 	}
 #endif
-
 }
-
